@@ -37,6 +37,7 @@ def check_inclusion(blast_set, data_file, output_folder):
     last_percent = 0
     with open(data_file, 'r') as fd:
         csv_reader = csv.reader(fd, dialect='excel')
+        data_column = None
         for num, line in enumerate(csv_reader):
             cur_percent = int((float(fd.tell()) / data_file_size) * 100)
             if cur_percent != last_percent:
@@ -44,8 +45,13 @@ def check_inclusion(blast_set, data_file, output_folder):
             last_percent = cur_percent
             id_match = _re_identity.search(line[0])
             if id_match:
+                if data_column is None:
+                    if len(line) > 2 and line[2]:
+                        data_column = 2
+                    else:
+                        data_column = 1
                 identity_old = identity
-                identity = Identity(line[0], line[1])
+                identity = Identity(line[0], line[data_column])
             else:
                 blast_match = _re_blast_no.search(line[0])
                 if blast_match:
