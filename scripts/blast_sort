@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 #encoding: utf-8
 
-import blast_sort
+from blast_sort import main
 import sys
 
 if __name__ == '__main__':
-    blast_sort.__main__.main(sys.argv)
+    main(sys.argv)
