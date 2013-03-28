@@ -11,10 +11,9 @@ Identity = namedtuple('Identity', ['name','dna'])
 
 # create unbuffered stdout so updates print nicely
 
-sys.stdout = os.fdopen(sys.stdout.fileno(), 'w',0)
 
-_re_identity = re.compile(r"^[\w_\d]+$")
-_re_blast_no = re.compile(r"^gi\|\d+\|ref\|(?P<blast>\w{2,3}_?\d+)\.?\d*\|$")
+re_identity = re.compile(r"^[\w_\d]+$")
+re_blast_no = re.compile(r"^gi\|\d+\|\w+\|(?P<blast>\w{2,3}_?\d+)\.?\d*\|")
 
 def format_fasta(identity):
     sequence = identity.dna
@@ -27,12 +26,13 @@ def format_fasta(identity):
         sequence = sequence[79:]
     return split_sequence
 
-def check_inclusion(blast_set, data_file, output_folder):
+def check_inclusion(blast_set, data_file, output_folder, verbose=False):
     output_folder = path(output_folder)
     identity = None
     identity_old = None
     blast_no_old = None
-    print "Parsing {data_file}:".format(data_file=data_file)
+    if verbose:
+        print "Parsing {data_file}:".format(data_file=data_file)
     data_file_size = os.path.getsize(data_file)
     last_percent = 0
     with open(data_file, 'r') as fd:
@@ -41,9 +41,10 @@ def check_inclusion(blast_set, data_file, output_folder):
         for num, line in enumerate(csv_reader):
             cur_percent = int((float(fd.tell()) / data_file_size) * 100)
             if cur_percent != last_percent:
-                print "{0}%".format(cur_percent)
+                if verbose:
+                    print "{0}%".format(cur_percent)
             last_percent = cur_percent
-            id_match = _re_identity.search(line[0])
+            id_match = re_identity.search(line[0])
             if id_match:
                 if data_column is None:
                     if len(line) > 2 and line[2]:
@@ -53,7 +54,7 @@ def check_inclusion(blast_set, data_file, output_folder):
                 identity_old = identity
                 identity = Identity(line[0], line[data_column])
             else:
-                blast_match = _re_blast_no.search(line[0])
+                blast_match = re_blast_no.search(line[0])
                 if blast_match:
                     blast_no = blast_match.groupdict('blast')['blast']
                     if blast_no.split('.',1)[0] in blast_set:
@@ -66,21 +67,5 @@ def check_inclusion(blast_set, data_file, output_folder):
 
 
 if __name__ == '__main__':
-    import argparse
-    from parse import read_file
-    arg_parser = argparse.ArgumentParser()
-    arg_parser.add_argument('--blast_file', '-b')
-    arg_parser.add_argument('--data_files', '-d', nargs='+')
-    arg_parser.add_argument('--output_folder', '-o')
-    args = arg_parser.parse_args(sys.argv[1:])
-    output_folder = path(args.output_folder)
-    # check that the output folder exists
-    if not output_folder.exists():
-        output_folder.mkdir()
-    if not output_folder.isdir():
-        print "{0} already exists and is not a directory.  please choose a directory or a new name"
-        sys.exit(status=1)
-    blast_set = read_file(args.blast_file)
-    for data_file in args.data_files:
-        check_inclusion(blast_set, data_file, output_folder)
-    print "\n\nDONE! :)"
+    from main import main
+    main(sys.argv)
