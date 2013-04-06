@@ -14,13 +14,13 @@ Identity = namedtuple('Identity', ['name','dna'])
 re_identity = re.compile(r"^[\w_\d]+$")
 re_blast_no = re.compile(r"^gi\|\d+\|\w+\|(?P<blast>\w{2,3}_?\d+)\.?\d*\|")
 
-re_gi = re.compile(R"^gi\|\d+\|(?P<type>\w+)")
-re_refseq = re.compile(r"ref\|(?P<accession>[\w\d_]+)\|(?P<name>[\w\d_]*)")
-re_genbank = re.compile(r"gb\|(?P<accession>[\w\d_]+)\|(?P<locus>[\w\d]*)")
-re_embl = re.compile(r"emb\|(?P<accession>[\w\d_]+)\|(?P<locus>[\w\d]*)")
-re_pir = re.compile(r"pir\|(?P<accession>[\w\d_]*)\|(?P<name>[\w\d_]*)")
-re_ddbj = re.compile(r"djb\|(?P<accession>[\w\d_]*)\|(?P<locus>[\w\d_]*)")
-re_prf = re.compile(r"prf\|(?P<accession>[\w\d_]*)\|(?P<locus>[\w\d_]*)")
+re_gi = re.compile(r"^gi\|\d+\|(?P<type>\w+)")
+re_refseq = re.compile(r"ref\|(?P<accession>[\w\d_]+)(\.\d+)?\|(?P<name>[\w\d_]*)")
+re_genbank = re.compile(r"gb\|(?P<accession>[\w\d_]+)(\.\d+)?\|(?P<locus>[\w\d]*)")
+re_embl = re.compile(r"emb\|(?P<accession>[\w\d_]+)(\.\d+)?\|(?P<locus>[\w\d]*)")
+re_pir = re.compile(r"pir\|(?P<accession>[\w\d_]*)\|(?P<name>[\w\d_]*)")  # Doesn't seem to have accession numbers
+re_ddbj = re.compile(r"djb\|(?P<accession>[\w\d_]*)(\.\d+)?\|(?P<locus>[\w\d_]*)")
+re_prf = re.compile(r"prf\|(?P<accession>[\w\d_]*)(\.\d+)?\|(?P<locus>[\w\d_]*)")  # Doesn't seem to have accession numbers
 
 re_dict = {
     'ref': re_refseq,
