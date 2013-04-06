@@ -1,5 +1,4 @@
 """Given a csv file of blasts, check for blasts that mach the passed set and store the identity and DNA sequence associated with it"""
-__author__ = 'yarbelk & kathysufy'
 
 import csv
 import os, sys
@@ -14,6 +13,45 @@ Identity = namedtuple('Identity', ['name','dna'])
 
 re_identity = re.compile(r"^[\w_\d]+$")
 re_blast_no = re.compile(r"^gi\|\d+\|\w+\|(?P<blast>\w{2,3}_?\d+)\.?\d*\|")
+
+re_gi = re.compile(R"^gi\|\d+\|(?P<type>\w+)")
+re_refseq = re.compile(r"ref\|(?P<accession>[\w\d_]+)\|(?P<name>[\w\d_]*)")
+re_genbank = re.compile(r"gb\|(?P<accession>[\w\d_]+)\|(?P<locus>[\w\d]*)")
+re_embl = re.compile(r"emb\|(?P<accession>[\w\d_]+)\|(?P<locus>[\w\d]*)")
+re_pir = re.compile(r"pir\|(?P<accession>[\w\d_]*)\|(?P<name>[\w\d_]*)")
+re_ddbj = re.compile(r"djb\|(?P<accession>[\w\d_]*)\|(?P<locus>[\w\d_]*)")
+re_prf = re.compile(r"prf\|(?P<accession>[\w\d_]*)\|(?P<locus>[\w\d_]*)")
+
+re_dict = {
+    'ref': re_refseq,
+    'gb' : re_genbank,
+    'emb': re_embl,
+    'pir': re_pir,
+    'djb': re_ddbj,
+    'prf': re_prf,
+    }
+
+def get_blast_dict(data):
+    gi_search = re_gi.search(data)
+    if gi_search:
+        try:
+            blast_type = gi_search.groupdict()['type']
+            test_re = re_dict[blast_type]
+            data_search = test_re.search(data)
+            if data_search:
+                found = data_search.groupdict()
+                blast = found['accession'] if found['accession'] else found['name']
+                ret_data = {
+                        'blast_type' : blast_type,
+                        'blast'      : blast.split('.')[0],
+                        'name'       : found.get('name'),
+                        'locus'      : found.get('locus'),
+                        }
+                return ret_data
+            return None
+        except KeyError:
+            return None
+    return None
 
 def format_fasta(identity):
     sequence = identity.dna
@@ -54,9 +92,9 @@ def check_inclusion(blast_set, data_file, output_folder, verbose=False):
                 identity_old = identity
                 identity = Identity(line[0], line[data_column])
             else:
-                blast_match = re_blast_no.search(line[0])
+                blast_match = get_blast_dict(line[0])
                 if blast_match:
-                    blast_no = blast_match.groupdict('blast')['blast']
+                    blast_no = blast_match['blast']
                     if blast_no.split('.',1)[0] in blast_set:
                         if blast_no != blast_no_old and identity.name != getattr(identity_old, 'name', None):
                             # write line(s) to file
