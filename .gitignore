@@ -43,3 +43,6 @@ data/*
 # vim
 *.swp
 *.swo
+
+# rope
+.ropeproject/*
