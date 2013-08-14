@@ -34,6 +34,7 @@ def check_inclusion(data_file, output_folder, verbose=False):
     with open(data_file, 'r') as fd:
         csv_reader = csv.reader(fd, dialect='excel')
         data_column = None
+        query_name_old = None
         for num, line in enumerate(csv_reader):
             cur_percent = int((float(fd.tell()) / data_file_size) * 100)
             if cur_percent != last_percent:
@@ -55,7 +56,7 @@ def check_inclusion(data_file, output_folder, verbose=False):
                 query_name = line[0]
                 if query_name != query_name_old and identity.name != getattr(identity_old, 'name', None):
                     # write line(s) to file
-                    with open(output_folder / blast_no + '.fasta','a') as output_fd:
+                    with open(output_folder / query_name + '.fasta','a') as output_fd:
                         output_fd.write('\n'.join(format_fasta(identity)))
                         output_fd.flush()
                 query_name_old = query_name
