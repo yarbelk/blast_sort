@@ -8,19 +8,46 @@ the matching blasts from the supplied data files.
 
 To install this as a command line program, check out the repo and install with:
 
+    # in virtual env
     python setup.py install
 
-This installs command line interface `blast_sort`.  use this by typing
+    # for global install
+    sudo python setup.py install
 
-    blast_sort --help
+This installs command line interface `query_contig_sort`.  use this by typing
+
+    query_contig_sort --help
+
 
 which will give you usage instructions.
 
 remember, all data files must be in `.csv` format, not excel formats.
 
+Uninstalling
+============
+
+You can uninstall this with
+
+    pip uninstall query_contig_sort
+
+for a virtual_env install or with
+
+    sudo pip uninstall query_contig_sort
+
+for a global install.
+
 
 Changes
 -------
+
+#### 0.1.4
+
+changed this  for use with a local blast rather than a database blast.  There
+is now no need for a blast lookup file, as all the searches are prefexed
+with `Query_contig_` (with a number.
+
+Test cases were removed as we are not using blast numbers, and those were the
+only thing that were being tested.
 
 #### 0.1.2
 added nosetests for the blast number regex.
