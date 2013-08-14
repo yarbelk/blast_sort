@@ -55,9 +55,6 @@ def get_blast_dict(data):
 
 def format_fasta(identity):
     sequence = identity.dna
-    if 'contig_245' in identity.name:
-        pass
-        #import ipdb; ipdb.set_trace()
     split_sequence = ["\n>" + identity.name]
     while sequence:
         split_sequence += [sequence[:79],]
