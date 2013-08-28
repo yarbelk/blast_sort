@@ -11,7 +11,7 @@ Identity = namedtuple('Identity', ['name','dna'])
 # create unbuffered stdout so updates print nicely
 
 
-re_query_contig = re.compile(r"^Query_contig_\d+$")
+re_query_contig = re.compile(r"^Query_contig_[\d\w\s]+$")
 
 
 def format_fasta(identity):
