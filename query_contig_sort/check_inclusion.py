@@ -35,6 +35,7 @@ def check_inclusion(data_file, output_folder, verbose=False):
     with open(data_file, 'r') as fd:
         csv_reader = csv.reader(fd, dialect='excel')
         data_column = None
+        found_match = False
         match_list = []
         for num, line in enumerate(csv_reader):
             cur_percent = int((float(fd.tell()) / data_file_size) * 100)
@@ -53,15 +54,15 @@ def check_inclusion(data_file, output_folder, verbose=False):
                         data_column = 1
                 # Reset list on new idenity
                 if identity_old != identity:
-                    match_list = []
+                    found_match = False
                 identity_old = identity
                 identity = Identity(line[0], line[data_column])
             else:
                 query_name = line[0]
-                if query_name in match_list:
+                if found_match:
                     continue
                 else:
-                    match_list.append(query_name)
+                    found_match = True
                     # write line(s) to file
                     with open(output_folder / query_name + '.fasta','a') as output_fd:
                         output_fd.write('\n'.join(format_fasta(identity)))
