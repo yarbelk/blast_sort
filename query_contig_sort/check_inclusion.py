@@ -11,7 +11,7 @@ Identity = namedtuple('Identity', ['name','dna'])
 # create unbuffered stdout so updates print nicely
 
 
-re_query_contig = re.compile(r"^Query_contig_[\d\w\s]+$")
+re_query_contig = re.compile(r"^Query_contig_.+$")
 
 
 def format_fasta(identity):
@@ -21,6 +21,7 @@ def format_fasta(identity):
         split_sequence += [sequence[:79],]
         sequence = sequence[79:]
     return split_sequence
+
 
 def check_inclusion(data_file, output_folder, verbose=False):
     output_folder = path(output_folder)
@@ -34,7 +35,7 @@ def check_inclusion(data_file, output_folder, verbose=False):
     with open(data_file, 'r') as fd:
         csv_reader = csv.reader(fd, dialect='excel')
         data_column = None
-        query_name_old = None
+        match_list = []
         for num, line in enumerate(csv_reader):
             cur_percent = int((float(fd.tell()) / data_file_size) * 100)
             if cur_percent != last_percent:
@@ -50,16 +51,21 @@ def check_inclusion(data_file, output_folder, verbose=False):
                         data_column = 2
                     else:
                         data_column = 1
+                # Reset list on new idenity
+                if identity_old != identity:
+                    match_list = []
                 identity_old = identity
                 identity = Identity(line[0], line[data_column])
             else:
                 query_name = line[0]
-                if query_name != query_name_old and identity.name != getattr(identity_old, 'name', None):
+                if query_name in match_list:
+                    continue
+                else:
+                    match_list.append(query_name)
                     # write line(s) to file
                     with open(output_folder / query_name + '.fasta','a') as output_fd:
                         output_fd.write('\n'.join(format_fasta(identity)))
                         output_fd.flush()
-                query_name_old = query_name
 
 
 if __name__ == '__main__':
